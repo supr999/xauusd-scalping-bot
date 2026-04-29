@@ -18,6 +18,10 @@ on:
         required: false
         default: "Manual trigger"
 
+env:
+  # Opt-in ke Node.js 24 (wajib sebelum Juni 2026, lalu jadi default)
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   scalping-alert:
     name: 🤖 Analisis XAUUSD & Kirim Telegram
