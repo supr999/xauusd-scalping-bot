@@ -2,25 +2,13 @@ name: 📊 XAUUSD Scalping Bot — Hourly Alert
 
 on:
   schedule:
-    # ┌─── menit (0)
-    # │  ┌── jam (* = setiap jam)
-    # │  │  ┌─ hari bulan
-    # │  │  │  ┌── bulan
-    # │  │  │  │  ┌─ hari minggu
-    # 0  *  *  *  *   → setiap jam tepat menit ke-0 (UTC)
     - cron: "0 * * * *"
-
-  # Jalankan manual kapan saja dari tab Actions
   workflow_dispatch:
     inputs:
       reason:
-        description: "Alasan menjalankan manual (opsional)"
+        description: "Alasan menjalankan manual"
         required: false
         default: "Manual trigger"
-
-env:
-  # Opt-in ke Node.js 24 (wajib sebelum Juni 2026, lalu jadi default)
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   scalping-alert:
@@ -29,24 +17,20 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      # ── 1. Ambil source code ────────────────────────────────────────────────
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Setup Python ────────────────────────────────────────────────────
       - name: 🐍 Setup Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
 
-      # ── 3. Install dependencies ─────────────────────────────────────────────
       - name: 📦 Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # ── 4. Jalankan bot ─────────────────────────────────────────────────────
       - name: 📊 Jalankan analisis & kirim alert Telegram
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
@@ -54,11 +38,7 @@ jobs:
           TELEGRAM_CHAT_ID:    ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python src/analyzer.py
 
-      # ── 5. Log ──────────────────────────────────────────────────────────────
       - name: 📝 Log eksekusi
         if: always()
         run: |
-          echo "========================================"
-          echo "  Eksekusi selesai: $(TZ=Asia/Jakarta date)"
-          echo "  Trigger: ${{ github.event_name }}"
-          echo "========================================"
+          echo "Eksekusi selesai: $(TZ=Asia/Jakarta date)"
